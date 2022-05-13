@@ -1,7 +1,6 @@
 package dme
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -236,18 +235,12 @@ func resourceManagedDNSRecordActionsCreate(d *schema.ResourceData, m interface{}
 	if err != nil {
 		if strings.Contains(err.Error(), "already exists") && d.Get("allow_overwrite").(bool) {
 			log.Printf("[DEBUG] DNS Record already exists however we are overwriting it")
-			records, err := dmeClient.GetbyId("dns/managed/" + d.Get("domain_id").(string) + "/records/")
+
+			record, err := dmeClient.GetbyId("dns/managed/" + d.Get("domain_id").(string) + "/records?recordName=" + recordAttr.Name + "&type=" + recordAttr.Type)
 			if err != nil {
 				return err
 			}
-			children, err := records.ChildrenMap()
-			if err != nil {
-				return err
-			}
-			record, ok := children[recordAttr.Name]
-			if !ok {
-				return errors.New(fmt.Sprintf("Record ID for name %s", recordAttr.Name))
-			}
+			log.Println("Found record: ", record)
 
 			cont, err = dmeClient.Update(&recordAttr, "dns/managed/"+d.Get("domain_id").(string)+"/records/"+record.S("id").String())
 			if err != nil {
