@@ -240,13 +240,13 @@ func resourceManagedDNSRecordActionsCreate(d *schema.ResourceData, m interface{}
 			if err != nil {
 				return err
 			}
-			children, err := records.ChildrenMap()
+			children, err := records.S("data").ChildrenMap()
 			if err != nil {
 				return err
 			}
 			record, ok := children[recordAttr.Name]
 			if !ok {
-				return errors.New(fmt.Sprintf("Record ID for name %s", recordAttr.Name))
+				return errors.New(fmt.Sprintf("Record ID for name %s not found", recordAttr.Name))
 			}
 
 			cont, err = dmeClient.Update(&recordAttr, "dns/managed/"+d.Get("domain_id").(string)+"/records/"+record.S("id").String())
