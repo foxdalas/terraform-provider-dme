@@ -249,6 +249,7 @@ func resourceManagedDNSRecordActionsCreate(d *schema.ResourceData, m interface{}
 			for _, v := range children {
 				if v.S("name").String() == recordAttr.Name {
 					id = v.S("id").String()
+					break
 				}
 			}
 			if len(id) == 0 {
